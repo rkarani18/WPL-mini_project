@@ -42,6 +42,7 @@ function filterProducts() {
 function addToCart(id) {
     const existingItem = cart.find(item => item.id === id);
     if (existingItem) {
+        if (existingItem.qty >= 99) { alert('Maximum 99 units per item allowed.'); return; }
         existingItem.qty += 1;
     } else {
         const product = inventory.find(p => p.id === id);
@@ -54,7 +55,9 @@ function addToCart(id) {
 function changeQty(id, delta) {
     const item = cart.find(item => item.id === id);
     if (!item) return;
-    item.qty += delta;
+    const newQty = item.qty + delta;
+    if (newQty > 99) { alert('Maximum 99 units per item allowed.'); return; }
+    item.qty = newQty;
     if (item.qty <= 0) {
         cart = cart.filter(i => i.id !== id);
     }
