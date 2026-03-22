@@ -8,27 +8,27 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$user_id    = $_SESSION['user_id'];
-$placed     = isset($_GET['placed']) && $_GET['placed'] == '1';
-$highlight  = isset($_GET['order_id']) ? (int)$_GET['order_id'] : null;
+$user_id   = $_SESSION['user_id'];
+$placed    = isset($_GET['placed']) && $_GET['placed'] == '1';
+$highlight = isset($_GET['order_id']) ? (int)$_GET['order_id'] : null;
 
-// Fetch all orders for this user
 $orders = $conn->query("
     SELECT o.id, o.status, o.grand_total, o.placed_at, o.delivery_address,
            o.cgst, o.sgst, o.delivery_fee, o.subtotal,
-           p.status AS rx_status, p.id AS rx_id, p.admin_note
+           p.status AS rx_status, p.id AS rx_id, p.admin_note,
+           s.name AS shop_name, s.address AS shop_address,
+           s.phone AS shop_phone, s.maps_link AS shop_map
     FROM orders o
     LEFT JOIN prescriptions p ON o.prescription_id = p.id
+    LEFT JOIN shops s ON o.shop_id = s.id
     WHERE o.user_id = $user_id
     ORDER BY o.placed_at DESC
 ");
 
-// Fetch order items per order
 function getOrderItems($conn, $order_id) {
     return $conn->query("SELECT * FROM order_items WHERE order_id = $order_id");
 }
 
-$statusSteps = ['pending', 'rx_pending', 'confirmed', 'dispatched', 'delivered'];
 $statusLabel = [
     'pending'    => 'Order Placed',
     'rx_pending' => 'Awaiting RX Approval',
@@ -42,7 +42,7 @@ $statusLabel = [
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Orders | RKTMed</title>
+    <title>My Orders | QuickMed</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
@@ -59,14 +59,24 @@ $statusLabel = [
 
         .success-banner { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; font-weight: 500; }
 
-        /* Order card */
         .order-card { background: white; border-radius: 14px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); border: 2px solid transparent; }
         .order-card.highlight { border-color: #00796b; }
         .order-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
-        .order-id { font-size: 16px; font-weight: 700; }
+        .order-id   { font-size: 16px; font-weight: 700; }
         .order-meta { font-size: 13px; color: #64748b; margin-top: 2px; }
 
-        /* Status badge */
+        /* Shop delivery banner */
+        .shop-banner {
+            display: flex; align-items: flex-start; gap: 12px;
+            background: #e6f4f3; border: 1px solid #b2dfdb;
+            border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+        }
+        .shop-banner .shop-icon { font-size: 22px; flex-shrink: 0; line-height: 1; }
+        .shop-banner .shop-name { font-size: 14px; font-weight: 700; color: #00796b; margin-bottom: 3px; }
+        .shop-banner .shop-meta { font-size: 12px; color: #64748b; }
+        .shop-banner .shop-meta a { color: #00796b; font-weight: 600; text-decoration: none; }
+        .shop-banner .shop-meta a:hover { text-decoration: underline; }
+
         .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
         .badge.pending    { background:#fef9c3; color:#854d0e; }
         .badge.rx_pending { background:#fef3c7; color:#92400e; }
@@ -75,7 +85,6 @@ $statusLabel = [
         .badge.delivered  { background:#dcfce7; color:#166534; }
         .badge.cancelled  { background:#fee2e2; color:#991b1b; }
 
-        /* Progress bar */
         .progress-bar { display: flex; align-items: center; margin: 16px 0; }
         .step { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
         .step .dot { width: 18px; height: 18px; border-radius: 50%; background: #e2e8f0; border: 2px solid #e2e8f0; z-index: 1; }
@@ -87,19 +96,16 @@ $statusLabel = [
         .step:first-child::before { display:none; }
         .step.done::before { background: #00796b; }
 
-        /* RX notice */
         .rx-notice { background: #fef9c3; border: 1px solid #fbbf24; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #854d0e; margin-bottom: 14px; }
         .rx-notice.approved { background: #dcfce7; border-color: #86efac; color: #166534; }
         .rx-notice.rejected { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
 
-        /* Items list */
         .items-toggle { background: none; border: none; color: #00796b; font-weight: 600; cursor: pointer; font-size: 13px; padding: 0; margin-bottom: 10px; }
         .items-list { font-size: 13px; }
         .items-list table { width: 100%; border-collapse: collapse; }
         .items-list td { padding: 6px 8px; border-bottom: 1px solid #f1f5f9; }
         .items-list .amount { text-align: right; font-weight: 600; color: #00796b; }
 
-        /* Bill summary */
         .bill-mini { margin-top: 12px; font-size: 13px; border-top: 1px solid #f1f5f9; padding-top: 12px; }
         .bill-mini .row { display: flex; justify-content: space-between; margin-bottom: 4px; color: #64748b; }
         .bill-mini .total { font-weight: 700; color: #1e293b; font-size: 15px; margin-top: 6px; }
@@ -112,7 +118,7 @@ $statusLabel = [
 <body>
 
 <div class="topbar">
-    <div class="logo">RKT<span>Med</span></div>
+    <div class="logo">Quick<span>Med</span></div>
     <a href="index.php">← Back to Shop</a>
 </div>
 
@@ -132,23 +138,47 @@ $statusLabel = [
     </div>
     <?php endif; ?>
 
-    <?php while ($order = $orders->fetch_assoc()):
+    <?php
+    $progressSteps = ['confirmed', 'dispatched', 'delivered'];
+    while ($order = $orders->fetch_assoc()):
         $isCancelled = $order['status'] === 'cancelled';
-        $progressSteps = ['confirmed', 'dispatched', 'delivered'];
-        $currentIdx = array_search($order['status'], $progressSteps);
+        $currentIdx  = array_search($order['status'], $progressSteps);
     ?>
     <div class="order-card <?= ($highlight === $order['id']) ? 'highlight' : '' ?>">
+
         <div class="order-header">
             <div>
                 <div class="order-id">Order #<?= $order['id'] ?></div>
                 <div class="order-meta">
                     Placed on <?= date('d M Y, h:i A', strtotime($order['placed_at'])) ?>
-                    · <?= htmlspecialchars($order['delivery_address']) ?>
+                    &middot; <?= htmlspecialchars($order['delivery_address']) ?>
                 </div>
             </div>
             <span class="badge <?= $order['status'] ?>"><?= $statusLabel[$order['status']] ?? ucfirst($order['status']) ?></span>
         </div>
 
+        <!-- Shop delivery source -->
+        <?php if ($order['shop_name']): ?>
+        <div class="shop-banner">
+            <span class="shop-icon">🏪</span>
+            <div>
+                <div class="shop-name">Delivering from: <?= htmlspecialchars($order['shop_name']) ?></div>
+                <div class="shop-meta">
+                    <?php if ($order['shop_address']): ?>
+                        📍 <?= htmlspecialchars($order['shop_address']) ?>
+                    <?php endif; ?>
+                    <?php if ($order['shop_phone']): ?>
+                        &nbsp;&middot;&nbsp; 📞 <?= htmlspecialchars($order['shop_phone']) ?>
+                    <?php endif; ?>
+                    <?php if ($order['shop_map']): ?>
+                        &nbsp;&middot;&nbsp; <a href="<?= htmlspecialchars($order['shop_map']) ?>" target="_blank">View on map →</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Prescription notice -->
         <?php if ($order['rx_id']): ?>
         <div class="rx-notice <?= $order['rx_status'] ?>">
             <?php if ($order['rx_status'] === 'pending'): ?>
@@ -165,8 +195,8 @@ $statusLabel = [
         </div>
         <?php endif; ?>
 
-        <?php if (!$isCancelled): ?>
         <!-- Progress Steps -->
+        <?php if (!$isCancelled): ?>
         <div class="progress-bar">
             <?php foreach ($progressSteps as $idx => $step): ?>
             <div class="step <?= ($currentIdx !== false && $idx < $currentIdx) ? 'done' : (($idx === $currentIdx) ? 'active' : '') ?>">
@@ -192,7 +222,6 @@ $statusLabel = [
                 </tr>
                 <?php endwhile; ?>
             </table>
-
             <div class="bill-mini">
                 <div class="row"><span>Subtotal</span><span>₹<?= number_format($order['subtotal'], 2) ?></span></div>
                 <div class="row"><span>CGST (6%)</span><span>₹<?= number_format($order['cgst'], 2) ?></span></div>
@@ -207,14 +236,14 @@ $statusLabel = [
 
 <script>
 function toggleItems(orderId) {
-    const el = document.getElementById('items-' + orderId);
+    const el  = document.getElementById('items-' + orderId);
     const btn = el.previousElementSibling;
     if (el.style.display === 'none') {
         el.style.display = 'block';
-        btn.textContent = '🧾 Hide Items';
+        btn.textContent  = '🧾 Hide Items';
     } else {
         el.style.display = 'none';
-        btn.textContent = '🧾 View Items';
+        btn.textContent  = '🧾 View Items';
     }
 }
 </script>

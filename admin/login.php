@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 <div class="card">
-    <h2>RKT<span>Med</span></h2>
+    <h2>Quick<span>Med</span></h2>
     <p>Admin Portal — Please login to continue</p>
     <?php if ($error): ?><div class="alert"><?= $error ?></div><?php endif; ?>
     <form method="POST">

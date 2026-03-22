@@ -12,7 +12,8 @@ if (!isset($_SESSION['admin_id'])) {
 $total_users   = $conn->query("SELECT COUNT(*) as c FROM users")->fetch_assoc()['c'];
 $total_orders  = $conn->query("SELECT COUNT(*) as c FROM orders")->fetch_assoc()['c'];
 $pending_rx    = $conn->query("SELECT COUNT(*) as c FROM prescriptions WHERE status='pending'")->fetch_assoc()['c'];
-$total_revenue = $conn->query("SELECT SUM(grand_total) as t FROM orders WHERE status != 'cancelled'")->fetch_assoc()['t'] ?? 0;
+$total_revenue  = $conn->query("SELECT SUM(grand_total) as t FROM orders WHERE status != 'cancelled'")->fetch_assoc()['t'] ?? 0;
+$unread_feedback = $conn->query("SELECT COUNT(*) as c FROM feedback WHERE is_read = 0")->fetch_assoc()['c'];
 
 // Recent orders
 $recent = $conn->query("
@@ -61,13 +62,18 @@ $recent = $conn->query("
 </head>
 <body>
 <div class="sidebar">
-    <div class="logo">RKT<span>Med</span> Admin</div>
+    <div class="logo">Quick<span>Med</span> Admin</div>
     <a href="dashboard.php" class="active">📊 Dashboard</a>
     <a href="view_prescriptions.php">
         📄 Prescriptions
         <?php if ($pending_rx > 0): ?><span class="alert-pill"><?= $pending_rx ?></span><?php endif; ?>
     </a>
     <a href="manage_orders.php">📦 Orders</a>
+    <a href="manage_shops.php">🏪 Shops</a>
+    <a href="view_feedback.php">
+        💬 Feedback
+        <?php if ($unread_feedback > 0): ?><span class="alert-pill"><?= $unread_feedback ?></span><?php endif; ?>
+    </a>
     <a href="logout.php">🚪 Logout</a>
 </div>
 
