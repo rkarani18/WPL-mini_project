@@ -287,9 +287,12 @@ $shops_json = json_encode(array_map(fn($s) => [
                 $low   = $stock > 0 && $stock <= 5;
             ?>
             <div class="med-card">
-                <img src="<?= htmlspecialchars($med['image_url'] ?? '') ?>"
-                     alt="<?= htmlspecialchars($med['name']) ?>"
-                     onerror="this.src='https://via.placeholder.com/150?text=Med'">
+                <div class="img-wrap">
+                    <img src="<?= htmlspecialchars($med['image_url'] ?? '') ?>"
+                         alt="<?= htmlspecialchars($med['name']) ?>"
+                         loading="lazy"
+                         onerror="this.onerror=null;this.src='https://placehold.co/150x120/e6f4f3/00796b?text=💊'">
+                </div>
                 <?php if ($med['requires_prescription']): ?>
                     <div class="rx-badge">Rx Required</div>
                 <?php endif; ?>

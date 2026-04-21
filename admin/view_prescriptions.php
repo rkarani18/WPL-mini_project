@@ -72,7 +72,8 @@ $query = "
     ORDER BY p.uploaded_at DESC
 ";
 $result = $conn->query($query);
-
+$unread_feedback = $conn->query("SELECT COUNT(*) as c FROM feedback WHERE is_read = 0")->fetch_assoc()['c'];
+$pending_rx   = $conn->query("SELECT COUNT(*) as c FROM prescriptions WHERE status='pending'")->fetch_assoc()['c'];
 // Stats
 $stats = $conn->query("SELECT status, COUNT(*) as cnt FROM prescriptions GROUP BY status")->fetch_all(MYSQLI_ASSOC);
 $statMap = ['pending' => 0, 'approved' => 0, 'rejected' => 0];
@@ -148,12 +149,19 @@ foreach ($stats as $s) $statMap[$s['status']] = $s['cnt'];
 
 <div class="sidebar">
     <div class="logo">Quick<span>Med</span> Admin</div>
-    <a href="dashboard.php">📊 Dashboard</a>
-    <a href="view_prescriptions.php" class="active">📄 Prescriptions</a>
-    <a href="manage_orders.php">📦 Orders</a>
+    <a href="dashboard.php" >📊 Dashboard</a>
+    <a href="view_prescriptions.php" class="active">
+        📄 Prescriptions
+        <?php if ($pending_rx > 0): ?><span class="alert-pill"><?= $pending_rx ?></span><?php endif; ?>
+    </a>
+    <a href="manage_orders.php" >📦 Orders</a>
+    <a href="manage_shops.php" >🏪 Shops</a>
+    <a href="view_feedback.php" >
+        💬 Feedback
+        <?php if ($unread_feedback > 0): ?><span class="alert-pill"><?= $unread_feedback ?></span><?php endif; ?>
+    </a>
     <a href="logout.php">🚪 Logout</a>
 </div>
-
 <div class="main">
     <div class="page-title">📄 Prescription Review</div>
 
