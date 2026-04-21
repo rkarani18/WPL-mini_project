@@ -1,6 +1,7 @@
 <?php
 // order_status.php
 session_start();
+require 'includes/session_guard.php';
 require 'includes/db.php';
 
 if (!isset($_SESSION['user_id'])) {

@@ -1,6 +1,7 @@
 <?php
 // upload_prescription.php
 session_start();
+require 'includes/session_guard.php';
 require 'includes/db.php';
 
 // Must be logged in
