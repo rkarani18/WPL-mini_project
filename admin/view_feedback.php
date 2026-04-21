@@ -28,6 +28,7 @@ $feedback = $conn->query("SELECT * FROM feedback $where ORDER BY submitted_at DE
 $unread_count = $conn->query("SELECT COUNT(*) as c FROM feedback WHERE is_read = 0")->fetch_assoc()['c'];
 $total_count  = $conn->query("SELECT COUNT(*) as c FROM feedback")->fetch_assoc()['c'];
 $pending_rx   = $conn->query("SELECT COUNT(*) as c FROM prescriptions WHERE status='pending'")->fetch_assoc()['c'];
+$unread_feedback = $conn->query("SELECT COUNT(*) as c FROM feedback WHERE is_read = 0")->fetch_assoc()['c'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -94,20 +95,19 @@ $pending_rx   = $conn->query("SELECT COUNT(*) as c FROM prescriptions WHERE stat
 
 <div class="sidebar">
     <div class="logo">Quick<span>Med</span> Admin</div>
-    <a href="dashboard.php">📊 Dashboard</a>
-    <a href="view_prescriptions.php">
+    <a href="dashboard.php" >📊 Dashboard</a>
+    <a href="view_prescriptions.php" >
         📄 Prescriptions
         <?php if ($pending_rx > 0): ?><span class="alert-pill"><?= $pending_rx ?></span><?php endif; ?>
     </a>
-    <a href="manage_orders.php">📦 Orders</a>
-    <a href="manage_shops.php">🏪 Shops</a>
+    <a href="manage_orders.php" >📦 Orders</a>
+    <a href="manage_shops.php" >🏪 Shops</a>
     <a href="view_feedback.php" class="active">
         💬 Feedback
-        <?php if ($unread_count > 0): ?><span class="alert-pill"><?= $unread_count ?></span><?php endif; ?>
+        <?php if ($unread_feedback > 0): ?><span class="alert-pill"><?= $unread_feedback ?></span><?php endif; ?>
     </a>
     <a href="logout.php">🚪 Logout</a>
 </div>
-
 <div class="main">
     <div class="page-title">💬 Customer Feedback</div>
     <div class="page-sub">Messages submitted through the Contact Us page</div>

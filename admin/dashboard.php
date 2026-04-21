@@ -64,19 +64,18 @@ $recent = $conn->query("
 <div class="sidebar">
     <div class="logo">Quick<span>Med</span> Admin</div>
     <a href="dashboard.php" class="active">📊 Dashboard</a>
-    <a href="view_prescriptions.php">
+    <a href="view_prescriptions.php" >
         📄 Prescriptions
         <?php if ($pending_rx > 0): ?><span class="alert-pill"><?= $pending_rx ?></span><?php endif; ?>
     </a>
-    <a href="manage_orders.php">📦 Orders</a>
-    <a href="manage_shops.php">🏪 Shops</a>
-    <a href="view_feedback.php">
+    <a href="manage_orders.php" >📦 Orders</a>
+    <a href="manage_shops.php" >🏪 Shops</a>
+    <a href="view_feedback.php" >
         💬 Feedback
         <?php if ($unread_feedback > 0): ?><span class="alert-pill"><?= $unread_feedback ?></span><?php endif; ?>
     </a>
     <a href="logout.php">🚪 Logout</a>
 </div>
-
 <div class="main">
     <div class="welcome">👋 Welcome, <?= htmlspecialchars($_SESSION['admin_name']) ?>!</div>
 
