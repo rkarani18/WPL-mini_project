@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us | QuickMed</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: #f7fafc; color: #2d3748; }
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         /* ── Hero banner ── */
         .contact-hero {
             background: linear-gradient(135deg, #00796b 0%, #004d40 60%, #00251a 100%);
-            padding: 60px 5% 80px;
+            padding: 60px 5% 70px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -88,21 +88,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 20px;
         }
         .contact-hero h1 {
-            font-family: 'Inter', sans-serif;
-            font-size: clamp(32px, 5vw, 52px);
+            font-size: clamp(28px, 4vw, 44px);
             font-weight: 800;
             color: white;
             line-height: 1.1;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
         .contact-hero h1 span { color: #ffb300; }
-        .contact-hero p {
+        .contact-hero .hero-desc {
             color: rgba(255,255,255,0.75);
-            font-size: 16px;
+            font-size: 15px;
             max-width: 520px;
-            margin: 0 auto;
+            margin: 0 auto 36px;
             line-height: 1.7;
         }
+        /* Feature cards inside hero */
+        .hero-features {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 860px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-feat {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 12px;
+            padding: 16px 14px;
+            text-align: center;
+            backdrop-filter: blur(4px);
+        }
+        .hero-feat .feat-icon { font-size: 24px; margin-bottom: 8px; }
+        .hero-feat .feat-title { font-size: 13px; font-weight: 700; color: #ffb300; margin-bottom: 4px; }
+        .hero-feat .feat-desc { font-size: 11px; color: rgba(255,255,255,0.7); line-height: 1.5; }
 
         /* ── Quick contact bar ── */
         .quick-bar {
@@ -144,7 +164,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         /* ── Info panel ── */
         .info-panel h2 {
-            font-family: 'Inter', sans-serif;
             font-size: 26px;
             font-weight: 800;
             color: #1a202c;
@@ -206,7 +225,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             top: 90px;
         }
         .form-card h3 {
-            font-family: 'Inter', sans-serif;
             font-size: 20px; font-weight: 800;
             margin-bottom: 6px; color: #1a202c;
         }
@@ -244,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .success-state { text-align: center; padding: 30px 10px; }
         .success-state .tick { font-size: 60px; margin-bottom: 16px; }
-        .success-state h3 { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 800; color: #166534; margin-bottom: 8px; }
+        .success-state h3 { font-size: 22px; font-weight: 800; color: #166534; margin-bottom: 8px; }
         .success-state p { font-size: 14px; color: #64748b; margin-bottom: 24px; line-height: 1.6; }
         .success-state a { display: inline-block; padding: 12px 28px; background: #00796b; color: white; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; }
         .success-state a:hover { background: #005f56; }
@@ -256,6 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .page-wrap { grid-template-columns: 1fr; margin-top: 30px; }
             .field-row { grid-template-columns: 1fr; }
             .form-card { position: static; }
+            .hero-features { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
@@ -281,9 +300,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!-- Hero -->
 <div class="contact-hero">
-    <div class="pill"> We're Here for You</div>
+    <div class="pill">💊 Your Neighbourhood Pharmacy, Online</div>
     <h1>Get in <span>Touch</span><br>with QuickMed</h1>
-    <p>Questions about your order, a medicine query, or just want to share feedback? Our team responds within 24 hours.</p>
+    <p class="hero-desc">QuickMed connects patients with trusted local pharmacies across Mumbai for fast, reliable home delivery — with full prescription support and real-time order tracking.</p>
+
+    <div class="hero-features">
+        <div class="hero-feat">
+            <div class="feat-icon">🏪</div>
+            <div class="feat-title">Multi-store</div>
+            <div class="feat-desc">Browse & order from multiple local pharmacy stores in one place</div>
+        </div>
+        <div class="hero-feat">
+            <div class="feat-icon">📄</div>
+            <div class="feat-title">Rx Support</div>
+            <div class="feat-desc">Upload prescriptions digitally — pharmacist reviews before dispatch</div>
+        </div>
+        <div class="hero-feat">
+            <div class="feat-icon">📍</div>
+            <div class="feat-title">Nearest Store</div>
+            <div class="feat-desc">Auto-detect your location and find the closest pharmacy partner</div>
+        </div>
+        <div class="hero-feat">
+            <div class="feat-icon">📦</div>
+            <div class="feat-title">Order Tracking</div>
+            <div class="feat-desc">Real-time status updates from confirmed to delivered</div>
+        </div>
+    </div>
 </div>
 
 <!-- Quick contact bar -->
@@ -315,7 +357,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Left: Info blocks -->
     <div class="info-panel">
         <h2>We'd love to<br><span>hear from you</span></h2>
-        <p class="sub">QuickMed connects you with trusted local pharmacies across Mumbai. Our support team is here to help with anything from order issues to prescription guidance.</p>
+        <p class="sub">Have a question about your order, a medicine, or need prescription guidance? Our support team is here to help and responds within 24 hours.</p>
 
         <!-- Address -->
         <div class="info-block">
